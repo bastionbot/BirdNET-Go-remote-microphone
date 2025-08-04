@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <ESPmDNS.h>
 #include "Application.h"
 #include "config.h"
 
@@ -24,11 +23,6 @@ void setup()
   Serial.print(WiFi.localIP());
   Serial.println("");
 
-  // startup MDNS
-  if (!MDNS.begin(MDNS_DOMAIN))
-  {
-    Serial.println("MDNS.begin failed");
-  }
   Serial.println("Creating microphone");
   Application *application = new Application();
   application->begin();
