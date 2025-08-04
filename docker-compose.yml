@@ -1,0 +1,37 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: birdnet-mediamtx
+    restart: unless-stopped
+    ports:
+      - "8554:8554"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  ffmpeg:
+    image: jrottenberg/ffmpeg:latest
+    container_name: birdnet-ffmpeg
+    depends_on:
+      - mediamtx
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    command: >
+      -f s16le -ar 24000 -ac 1 -i tcp://<YOUR BIRDNET-GO REMOTE MICROPHONE IP HERE>:9090
+      -af highpass=f=200,lowpass=f=10000,bandreject=f=6300,aresample=48000,volume=2.0
+      -c:a aac -b:a 64k
+      -f rtsp rtsp://mediamtx:8554/mystream
+      
+  birdnet-go:
+    image: ghcr.io/tphakala/birdnet-go:latest
+    container_name: birdnet-go
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - birdnet_data:/data
+      - birdnet_config:/config
+      - /etc/localtime:/etc/localtime:ro
+volumes:
+  birdnet_data:
+  birdnet_config:
