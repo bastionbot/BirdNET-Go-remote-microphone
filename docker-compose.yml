@@ -17,7 +17,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
     command: >
-      -f s16le -ar 24000 -ac 1 -i tcp://<YOUR BIRDNET-GO REMOTE MICROPHONE IP HERE>:9090
+      -timeout 15000000
+      -f s16le -ar 24000 -ac 1 -i tcp://<your esp32>:9090
       -af highpass=f=1500,equalizer=f=6100:t=q:w=1:g=-35,equalizer=f=5800:t=q:w=1:g=-35,aresample=48000,volume=1.2
       -c:a aac -b:a 64k
       -f rtsp rtsp://mediamtx:8554/mystream
@@ -27,7 +28,11 @@ services:
     container_name: birdnet-go
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "12345:8080"
+    depends_on:
+      - ffmpeg
+    environment:
+      - TZ=America/New_York
     volumes:
       - birdnet_data:/data
       - birdnet_config:/config
