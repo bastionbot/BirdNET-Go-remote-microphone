@@ -9,7 +9,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   ffmpeg:
-    image: jrottenberg/ffmpeg:latest
+    image: linuxserver/ffmpeg:latest
     container_name: birdnet-ffmpeg
     depends_on:
       - mediamtx
