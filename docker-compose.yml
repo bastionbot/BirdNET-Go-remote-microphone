@@ -18,7 +18,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     command: >
       -f s16le -ar 24000 -ac 1 -i tcp://<YOUR BIRDNET-GO REMOTE MICROPHONE IP HERE>:9090
-      -af highpass=f=200,lowpass=f=10000,bandreject=f=6300,aresample=48000,volume=2.0
+      -af highpass=f=1500,equalizer=f=6100:t=q:w=1:g=-35,equalizer=f=5800:t=q:w=1:g=-35,aresample=48000,volume=1.2
       -c:a aac -b:a 64k
       -f rtsp rtsp://mediamtx:8554/mystream
       
