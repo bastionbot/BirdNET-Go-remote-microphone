@@ -1,42 +1,61 @@
-#include <WiFiServer.h>
 #include "TCPSocketTransport.h"
 
 void TCPSocketTransport::begin()
 {
   Serial.println("Connect to TCP socket microphone.local:9090 to try out TCP socket streaming");
-  server = new WiFiServer(9090);
-  server->begin();
+  server.begin();
 }
 
 void TCPSocketTransport::send(void *data, size_t len)
 {
-  // get any new connections
-  WiFiClient client = server->available();
-  if (client)
+  // Accept new client if available
+  WiFiClient newClient = server.available();
+  if (newClient)
   {
-    Serial.println("New Client");
-    // add to the list of clients
+    Serial.println("New Client connected");
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
-      if (NULL == clients[i])
+      if (!clients[i]) // empty slot
       {
-        clients[i] = new WiFiClient(client);
+        clients[i] = newClient;
         break;
       }
     }
   }
-  // send the audio data to any clients
+
+  // Send to active clients, clean up dead ones
   for (int i = 0; i < MAX_CLIENTS; i++)
   {
-    if (clients[i] != NULL && (*clients[i]))
+    if (clients[i] && clients[i].connected())
     {
-      // send the samples to the client
-      clients[i]->write((uint8_t *)data, len);
+      clients[i].write((uint8_t *)data, len);
     }
-    else
+    else if (clients[i])
     {
-      // client has gone away, remove it from the list
-      clients[i] = NULL;
+      Serial.println("Client disconnected");
+      clients[i].stop();
+      clients[i] = WiFiClient(); // reset slot
     }
   }
+}
+
+bool TCPSocketTransport::hasClients() const
+{
+  for (int i = 0; i < MAX_CLIENTS; i++)
+  {
+    if (clients[i] && clients[i].connected())
+      return true;
+  }
+  return false;
+}
+
+size_t TCPSocketTransport::clientCount() const
+{
+  size_t count = 0;
+  for (int i = 0; i < MAX_CLIENTS; i++)
+  {
+    if (clients[i] && clients[i].connected())
+      count++;
+  }
+  return count;
 }
