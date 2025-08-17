@@ -1,17 +1,20 @@
 #pragma once
 #include "Transport.h"
+#include <WiFiClient.h>
+#include <WiFiServer.h>
 
-class WiFiClient;
-class WiFiServer;
 #define MAX_CLIENTS 10
 
 class TCPSocketTransport : public Transport
 {
 private:
-  WiFiServer *server = NULL;
-  WiFiClient *clients[MAX_CLIENTS] = {NULL};
+  WiFiServer server{9090};          // TCP server instance
+  WiFiClient clients[MAX_CLIENTS];  // slots for connected clients
 
 public:
-  void begin();
+  void begin() override;
   void send(void *data, size_t size) override;
+
+  bool hasClients() const;          // helper: check if any clients are connected
+  size_t clientCount() const;       // helper: count active clients
 };
