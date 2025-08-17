@@ -39,7 +39,7 @@ void TCPSocketTransport::send(void *data, size_t len)
   }
 }
 
-bool TCPSocketTransport::hasClients() const
+bool TCPSocketTransport::hasClients()
 {
   for (int i = 0; i < MAX_CLIENTS; i++)
   {
@@ -49,7 +49,7 @@ bool TCPSocketTransport::hasClients() const
   return false;
 }
 
-size_t TCPSocketTransport::clientCount() const
+size_t TCPSocketTransport::clientCount()
 {
   size_t count = 0;
   for (int i = 0; i < MAX_CLIENTS; i++)

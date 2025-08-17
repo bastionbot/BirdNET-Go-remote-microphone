@@ -15,6 +15,6 @@ public:
   void begin() override;
   void send(void *data, size_t size) override;
 
-  bool hasClients() const;          // helper: check if any clients are connected
-  size_t clientCount() const;       // helper: count active clients
+  bool hasClients();          // helper: check if any clients are connected
+  size_t clientCount();       // helper: count active clients
 };

@@ -5,7 +5,7 @@
 
 // network config
 #define WIFI_SSID <<SSID>>
-#define WIFI_PASSWORD <<PSWD>>
+#define WIFI_PASSWORD <<PASS>>
 
 // save to SPIFFS instead of SD Card?
 // #define USE_SPIFFS 1
