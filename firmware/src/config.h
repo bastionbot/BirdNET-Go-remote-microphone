@@ -4,8 +4,8 @@
 #include <driver/i2s.h>
 
 // network config
-#define WIFI_SSID <<SSID>>
-#define WIFI_PASSWORD <<PASS>>
+#define WIFI_SSID <<WIFI_SSID>>
+#define WIFI_PASSWORD <<WIFI_PASSWORD>>
 
 // save to SPIFFS instead of SD Card?
 // #define USE_SPIFFS 1
@@ -34,3 +34,14 @@ extern i2s_config_t i2s_adc_config;
 extern i2s_config_t i2s_mic_Config;
 // i2s microphone pins
 extern i2s_pin_config_t i2s_mic_pins;
+
+//NTP settings
+
+#define ntpServer "pool.ntp.org" // or whatever
+#define gmtOffset_sec 0       // adjust for your timezone, i.e. -3600 for GMT-1
+#define daylightOffset_sec 0 // 3600 or 0
+
+//sleep settings
+
+#define sleep_hour 22
+#define wake_hour 4
