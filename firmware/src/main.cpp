@@ -4,6 +4,7 @@
 #include "config.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include "time.h"
 
 unsigned long lastReconnectAttempt = 0;
 const unsigned long reconnectInterval = 10000; // 10 seconds
@@ -11,6 +12,7 @@ Application *application = nullptr;
 bool wasConnected = false;
 
 void wifiWatchdog( void *pvParameters );
+void checkSleepWindow();
 
 void setup()
 {
@@ -34,6 +36,17 @@ void setup()
   Serial.print(WiFi.localIP());
   Serial.println("");
 
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+  } else {
+    Serial.println(&timeinfo, "Time synced: %H:%M:%S");
+  }
+
+  // Check immediately if we should be sleeping
+  checkSleepWindow();
+
   Serial.println("Creating microphone");
   application = new Application();
   application->begin();
@@ -41,9 +54,28 @@ void setup()
   xTaskCreate(wifiWatchdog, "WiFi Watchdog", 4096, NULL, 1, NULL);
 }
 
-
 void loop()
 {
+}
+
+void checkSleepWindow()
+{
+  struct tm timeinfo;
+  if (getLocalTime(&timeinfo)) {
+    int hour = timeinfo.tm_hour;
+
+    if (hour >= sleep_hour || hour < wake_hour) {
+      int sleepHours = (hour >= sleep_hour) ? (24 - hour + wake_hour) : (wake_hour - hour);
+      uint64_t sleepSeconds = sleepHours * 3600ULL
+                            - timeinfo.tm_min * 60ULL
+                            - timeinfo.tm_sec;
+
+      Serial.printf("Entering deep sleep for %llu seconds\n", sleepSeconds);
+
+      esp_sleep_enable_timer_wakeup(sleepSeconds * 1000000ULL);
+      esp_deep_sleep_start();
+    }
+  }
 }
 
 void wifiWatchdog( void *pvParameters )
@@ -94,6 +126,9 @@ void wifiWatchdog( void *pvParameters )
       application->begin();
       wasConnected = true;
     }
+
+    checkSleepWindow();
+
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
